@@ -30,7 +30,7 @@ class UserResourceManager:
             # Example resource constraint:
             # MemoryLimit = 40G = 1024 * 1024 * 1024 * 40 = 42949672960
 
-            sd_unit = dbus.String(str(slice_id) + ".slice")
+            sd_unit = dbus.String("user-%d.slice" % uid)
             sd_runtime = dbus.Boolean(True)
             sd_properties = dbus.Array([dbus.Struct(["MemoryLimit","42949672960"])])
 
