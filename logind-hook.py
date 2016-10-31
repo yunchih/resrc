@@ -7,7 +7,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 class UserResourceManager:
 
-    def __init__(self, target_uid):
+    def __init__(self, target_uid, constraints):
         DBusGMainLoop(set_as_default=True)
 
         self._bus = SystemBus()
@@ -18,36 +18,42 @@ class UserResourceManager:
         self.manager_iface = Interface(self.manager, dbus_interface='org.freedesktop.systemd1.Manager')
 
         self.target_uid = target_uid
+        self.sd_properties = self._to_sd_props(constraints)
 
     def run(self):
         self.loop = gobject.MainLoop()
         self.loop.run()
 
-    def new_user_handler(self, slice_id, obj_path="", sender=""):
+    def _to_sd_props(self, ct):
+        props = []
+        for (key, value) in ct.items():
+            if isinstance(value, (int, long)):
+                props.append(dbus.Struct((key, dbus.UInt64(value))))
+            else:
+                props.append(dbus.Struct((key, dbus.String(value))))
+
+        return dbus.Array(props)
+
+    def _new_user_handler(self, slice_id, obj_path="", sender=""):
         uid = int(slice_id)
         logging.info("New user detected: %d" % uid)
         if uid == self.target_uid:
-            # Example resource constraint:
-            # MemoryLimit = 40G = 1024 * 1024 * 1024 * 40 = 42949672960
-
             sd_unit = dbus.String("user-%d.slice" % uid)
             sd_runtime = dbus.Boolean(True)
-            sd_properties = dbus.Array([dbus.Struct(["MemoryLimit","42949672960"])])
 
             try:
-                self.manager_iface.SetUnitProperties(sd_unit, sd_runtime, sd_properties)
+                self.manager_iface.SetUnitProperties(sd_unit, sd_runtime, self.sd_properties)
                 logging.info("Resource limitation imposed on user: %d" % uid)
             except dbus.DBusException as e:
                 logging.error("Failed imposing resource limit on %d: %s" % (uid, e))
 
     def monitor_new_user(self):
         try:
-            self.logind_iface.connect_to_signal("UserNew", self.new_user_handler, sender_keyword='sender')
+            self.logind_iface.connect_to_signal("UserNew", self._new_user_handler, sender_keyword='sender')
         except dbus.DBusException as e:
             logging.error("Failed registering user signal handler: " + e)
 
 if __name__ == '__main__':
-
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logging.info("Systemd resource manager started")
 
@@ -63,6 +69,12 @@ if __name__ == '__main__':
         logging.error("User not found: " + sys.argv[1])
         sys.exit(1)
 
-    manager = UserResourceManager(target_uid)
+    limits = {
+        "MemoryLimit": 53687091200 # 50 G
+        # MemorySoftLimit: not supported since Systemd 208, see: https://goo.gl/oMnQne
+        # "MemorySoftLimit": 37580963840 # 35 G
+    }
+    manager = UserResourceManager(target_uid, limits)
     manager.monitor_new_user()
     manager.run()
+
