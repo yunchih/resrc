@@ -63,7 +63,7 @@ class UserResourceManager:
     def _new_user_handler(self, slice_id, obj_path="", sender=""):
         try:
             uid = int(slice_id)
-            gid = pwd.getpwuid(uid).pwd_gid
+            gid = pwd.getpwuid(uid).pw_gid
             logging.info("New user detected: %d" % uid)
         except KeyError:
             # just in case
@@ -80,7 +80,6 @@ class UserResourceManager:
                 logging.error("Failed imposing resource limit on %d: %s" % (uid, e))
 
 def parse_users(users):
-
     _uids, _users = [], []
     _gids, _groups = [], []
 
