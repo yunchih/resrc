@@ -1,0 +1,8 @@
+*.swp
+*.pyc
+*.swo
+*.mo
+dist
+build
+env
+*egg*
