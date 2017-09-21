@@ -1,0 +1,23 @@
+---
+
+rules:
+    - name: "CSIE students (undergrad, master, PhD)"
+      rules:
+          CPUQuotaOverall: 80%
+          MemoryMax: 80%
+      groups: ['student','visitstudent','graduate','inmgraduate','bebigraduate']
+    - name: "CSIE alumni"
+      rules:
+          CPUQuotaOverall: 40%
+          MemoryMax: 30%
+      groups: ['alumni','bebialumni','graduate_alumni','inmalumni']
+    - name: "Select"
+      rules:
+          CPUQuotaOverall: 40%
+          MemoryMax: 30%
+      groups: ['select']
+    - name: "Banned members"
+      rules:
+          CPUQuotaOverall: 10%
+          MemoryMax: 10%
+      users: ['b03902074']
