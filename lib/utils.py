@@ -7,7 +7,7 @@ def quit(*args):
 
 def open_file(fn, mode="r"):
     try:
-        return open(prompt, mode)
+        return open(fn, mode)
     except FileNotFoundError:
         print("File {0} does not exist.".format(fn))
     except IOError as e:

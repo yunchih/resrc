@@ -1,13 +1,13 @@
-import logging
+import logging, yaml
 from lib.users import Users
 from lib.systemd import UsersResourceManager
 from lib.rules import Rule, RuleEntry
-from lib.users import User
+from lib.users import Users
 
 def parse_cmd(users=[], groups=[], rules=""):
     if users or groups:
         _users = Users(users,groups)
-        _rules = parse_rules(rules)
+        _rules = Rule("Commandline rules", parse_rules(rules))
         return [RuleEntry(_rules, _users)]
     else:
         return []
@@ -35,12 +35,14 @@ def parse_config(f):
             mark = exc.problem_mark
             print ("Error position: (%s:%s)" % (mark.line+1, mark.column+1))
             quit()
+        else:
+            print ("Error in configuration file: ", exc)
 
     rules = cfg["rules"]
     binded_rules = []
-    for entry in users:
-        glist = [] if "groups" in entry else entry["groups"]
-        ulist = [] if "users" in entry else entry["users"]
+    for entry in rules:
+        glist = entry["groups"] if "groups" in entry else []
+        ulist = entry["users"] if "users" in entry else []
         r = Rule(entry["name"],entry["rules"])
         u = Users(ulist, glist)
         binded_rules.append(RuleEntry(r, u))

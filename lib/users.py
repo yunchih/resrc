@@ -2,6 +2,18 @@ import pwd, grp
 
 class Users:
 
+    @staticmethod
+    def get_user_gid(uid):
+        return pwd.getpwuid(uid).pw_gid
+
+    @staticmethod
+    def gname_to_gid(g):
+        return grp.getgrnam(g).gr_gid
+
+    @staticmethod
+    def uname_to_uid(u):
+        return pwd.getpwnam(u).pw_uid
+
     def __init__(self, users, groups):
         self.uids = self.parse_users(users)
         self.gids = self.parse_groups(groups)
@@ -12,7 +24,7 @@ class Users:
         for g in groups:
             if g:
                 try:
-                    gid = grp.getgrnam(g).gr_gid
+                    gid = self.gname_to_gid(g)
                 except KeyError as err:
                     quit("Group not found: %s", g)
                 if gid > 0: # exclude root user
@@ -20,12 +32,12 @@ class Users:
 
         return gids
 
-    def parse_users(users):
+    def parse_users(self, users):
         uids = []
         for u in users:
             if u:
                 try:
-                    uid = pwd.getpwnam(u).pw_uid
+                    uid = self.uname_to_uid(u)
                 except KeyError as err:
                     quit("User not found: %s", u)
                 if uid > 0: # exclude root user

@@ -17,9 +17,10 @@
 #     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 #     IN THE SOFTWARE.
 
-import sys, logging, argparse, yaml
+import sys, logging, argparse
 from lib.utils import open_file, quit
 from lib.parse import parse_cmd, parse_config
+from lib.systemd import UsersResourceManager
 
 CONFIG_FILE  = "logind-hook.conf"
 DESCRIPTION  = "Limit total system resources available to a user within all her sessions."
@@ -39,18 +40,13 @@ Example:
 
 def _parse_config(fn_config):
 
-    f = open_file(fn_config)
+    if not fn_config:
+        return []
 
-    try:
-        cfg = yaml.load(f)
-    except yaml.YAMLError as exc:
-        if hasattr(exc, 'problem_mark'):
-            mark = exc.problem_mark
-            print ("Error position: (%s:%s)" % (mark.line+1, mark.column+1))
-            quit()
-    
+    f = open_file(fn_config)
+    cfg = parse_config(f)
     f.close()
-    return parse_config(cfg)
+    return cfg
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

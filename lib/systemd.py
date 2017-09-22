@@ -4,7 +4,8 @@ import dbus, logging
 from gi.repository import GLib
 from dbus import SystemBus, SessionBus, Interface
 from dbus.mainloop.glib import DBusGMainLoop
-from utils import quit
+from lib.utils import quit
+from lib.users import Users
 
 class UsersResourceManager:
 
@@ -40,7 +41,7 @@ class UsersResourceManager:
 
         try:
             uid = int(slice_id)
-            gid = pwd.getpwuid(uid).pw_gid
+            gid = Users.get_user_gid(uid)
             logging.info("New user detected: %d" % uid)
         except KeyError:
             # just in case
@@ -50,12 +51,13 @@ class UsersResourceManager:
         if not uid or not gid: # exclude root and malformed uid, gid
             return
 
-        for entry in ruleset:
+        for entry in self.ruleset:
             # Only apply the first matched rule
             if self.all_user or entry.match(uid, gid):
-                if not self.dry_run:
-                    self.sd_set_unit_properties(uid, entry.get().rules)
-                logging.info("UID ${0} match rule \"${1}\"".format(uid, entry.get().name))
+                r = entry.get_rules().rules
+                if (not self.dry_run) and r:
+                    self.sd_set_unit_properties(uid, r)
+                logging.info("UID {0} matches rule \"{1}\"".format(uid, entry.get_rules().name))
                 break
 
     def sd_set_unit_properties(self, uid, properties):
@@ -68,12 +70,13 @@ class UsersResourceManager:
         except dbus.DBusException as e:
             logging.error("Failed imposing resource limit on %d: %s" % (uid, e))
 
-def dict_to_dbus_properties(self, ct):
-    props = []
-    for (key, value) in ct.items():
-        if isinstance(value, (int, long)):
-            props.append(dbus.Struct((key, dbus.UInt64(value))))
-        else:
-            props.append(dbus.Struct((key, dbus.String(value))))
+    @staticmethod
+    def dict_to_dbus_properties(ct):
+        props = []
+        for (key, value) in ct:
+            if isinstance(value, int):
+                props.append(dbus.Struct((key, dbus.UInt64(value))))
+            else:
+                props.append(dbus.Struct((key, dbus.String(value))))
 
-    return dbus.Array(props)
+        return dbus.Array(props)
