@@ -11,4 +11,4 @@ setup(name='logind-hook',
       packages = ['lib'],
       install_requires=['PyYAML','dbus-python'],
       scripts=['bin/logind-hook'],
-      zip_safe=False)
+      zip_safe=True)
