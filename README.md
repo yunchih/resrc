@@ -1,25 +1,56 @@
 # Systemd user resource limitation imposer
 
-This script impose some resource constrain upon every user
-session when they are first created.  In other words, when a user's
-first login, our script catch a signal and invoke systemd's API to set
-constraint over her resource usage.
+**logind-hook** imposes arbitrary CGroup resource constrain upon every user
+session when they are first created.  In other words, when a user
+first logs in, **logind-hook** receives a signal and invoke Systemd's API to set
+resource constraint over her resource usage.
 
 See [here](https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html)
 for a list of available resource type.
 
+See `examples/config.yaml` for example configuration file.
 
-### Example
-
-Apply the `MemoryLimit` Systemd resource rule to the user `john`:
-
-```
-    $ ./logind-hook.py --users john --rules MemoryLimit=53687091200
+### Install
 
 ```
+python setup.py install
+```
+### Example (rules read from commandline)
 
-Apply the `MemoryLimit` Systemd resource to all users:
+Apply the `MemoryMax` Systemd resource rule to the user `john`:
 
 ```
-    $ ./logind-hook.py --rules MemoryLimit=53687091200
+    $ logind-hook --users john --rules MemoryMax=53687091200 # 50 GiB in bytes
+
+```
+
+Apply the `MemoryMax` (in percentage) resource limit to users `alice` and `bob:
+
+```
+    $ logind-hook --users alice,bob --rules MemoryMax=40% # 40% of RAM
+```
+
+Apply the `MemoryMax` (in percentage) resource limit to users `alice` and `bob`:
+
+```
+    $ logind-hook --users alice,bob --rules MemoryMax=40% # 40% of RAM
+```
+
+Apply the `CPUQuota` (in percentage) resource limit to users `doge` and `meow`
+and all users in group `faculty` and `student`:
+
+```
+    $ logind-hook --users doge,meow --groups faculty,student --rules CPUQuota=40% # 0.4 vCPU
+```
+
+Apply the `CPUQuotaOverall` (in percentage) resource limit to user `doge`:
+
+```
+    # If the system has 8 vCPU, doge will get 8*0.2 = 1.6 vCPU
+    $ logind-hook --users doge --rules CPUQuotaOverall=20%
+```
+
+### Example (rules read from configuration file)
+```
+    $ logind-hook --config examples/config.yaml
 ```
