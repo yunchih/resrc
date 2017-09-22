@@ -15,6 +15,28 @@ See `examples/config.yaml` for example configuration file.
 ```
 python setup.py install
 ```
+
+### Develop
+
+```
+# Work in a virtual environment
+virtualenv env
+
+# Jump into it.
+source env/bin/activate
+
+# In another terminal window, automatically re-install the scripts when they are being modified
+\ls bin/* lib/*.py | entr -s 'python setup.py develop' 
+```
+
+### Package
+
+#### ArchLinux
+
+```
+makepkg
+```
+
 ### Example (rules read from commandline)
 
 Apply the `MemoryMax` Systemd resource rule to the user `john`:
