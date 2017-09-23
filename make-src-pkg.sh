@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 VERSION=1.1
 PKG_NAME=resrc
