@@ -1,5 +1,5 @@
 import os
-from lib.systemd import UsersResourceManager
+from resrc.systemd import UsersResourceManager
 
 class Rule:
 

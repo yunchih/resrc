@@ -3,9 +3,9 @@
 import dbus, logging
 from gi.repository import GLib
 from dbus import SystemBus, SessionBus, Interface
-from dbus.mainloop.glib import DBusGMainLoop
-from lib.utils import quit
-from lib.users import Users
+from dbus.mainloop.gresrc import DBusGMainLoop
+from resrc.utils import quit
+from resrc.users import Users
 
 class UsersResourceManager:
 

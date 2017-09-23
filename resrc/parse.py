@@ -1,8 +1,8 @@
 import logging, yaml
-from lib.users import Users
-from lib.systemd import UsersResourceManager
-from lib.rules import Rule, RuleEntry
-from lib.users import Users
+from resrc.users import Users
+from resrc.systemd import UsersResourceManager
+from resrc.rules import Rule, RuleEntry
+from resrc.users import Users
 
 def parse_cmd(users=[], groups=[], rules=""):
     if users or groups:
