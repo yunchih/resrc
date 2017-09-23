@@ -5,4 +5,6 @@
 dist
 build
 env
+pkg
 *egg*
+*.tar.gz
