@@ -1,9 +1,9 @@
 # Systemd user resource limitation imposer
 
-**resrc** (i.e. Resource Control) imposes arbitrary CGroup resource constrain upon every user
+**resrc** (i.e. Resource Control) imposes arbitrary CGroup resource constraints upon every user
 session when they are first created.  In other words, when a user
-first logs in, **logind-hook** receives a signal and invoke Systemd's API to set
-resource constraint over her resource usage.
+first logs in, **resrc** receives a signal and invoke Systemd's API to set
+constraint over her resource usage.
 
 See [here](https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html)
 for a list of available resource type.
