@@ -41,10 +41,10 @@ class Rule:
 
     def translate_rule(self, name, v):
         p = self.percent(v)
-        if name is "CPUQuota":
+        if name == "CPUQuota":
             # CPUQuota 1% = CPUQuotaPerSecUSec 10000
             return ("CPUQuotaPerSecUSec", (p * 1000000.0))
-        if name is "CPUQuotaOverall":
+        if name == "CPUQuotaOverall":
             return ("CPUQuotaPerSecUSec", int(self.cpu_cnt * p * 1000000.0))
         if "Memory" in name and "%" in v:
             return (name, int(self.ram_bytes * p))
