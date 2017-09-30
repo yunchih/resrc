@@ -18,9 +18,9 @@
 #     IN THE SOFTWARE.
 
 import sys, logging, argparse
-from lib.utils import open_file, quit
-from lib.parse import parse_cmd, parse_config
-from lib.systemd import UsersResourceManager
+from resrc.utils import open_file, quit
+from resrc.parse import parse_cmd, parse_config
+from resrc.systemd import UsersResourceManager
 
 CONFIG_FILE  = "logind-hook.conf"
 DESCRIPTION  = "Limit total system resources available to a user within all her sessions."

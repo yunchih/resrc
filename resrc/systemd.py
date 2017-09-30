@@ -3,7 +3,7 @@
 import dbus, logging
 from gi.repository import GLib
 from dbus import SystemBus, SessionBus, Interface
-from dbus.mainloop.gresrc import DBusGMainLoop
+from dbus.mainloop.glib import DBusGMainLoop
 from resrc.utils import quit
 from resrc.users import Users
 
