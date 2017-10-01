@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION=1.1
+VERSION=1.2
 PKG_NAME=resrc
 FILES=("bin" "examples" "resrc" "setup.py" "README.md")
 BASE="$(dirname "$0")"

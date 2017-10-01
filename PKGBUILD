@@ -1,15 +1,14 @@
 # Maintainer: Yunchih Chen <yunchih@csie.ntu.edu.tw>
 modulename=resrc
 pkgname="python-${modulename}"
-pkgver=1.1
-pkgrel=1
+pkgver=1.2
 pkgdesc="Systemd-logind resource hook"
 arch=('any')
 url="https://github.com/yunchih/systemd-logind-hook"
 license=('MIT')
 depends=('pacman' 'python>=3.3' 'python-dbus' 'python-yaml')
 source=("https://github.com/yunchih/resrc/releases/download/v${pkgver}/${modulename}-${pkgver}.tar.gz")
-md5sums=('6f324bfe619b5177d00aea3d676a6773')
+md5sums=('2e3849e05d54cd7e72726ac807a65067')
 package() {
   cd "${srcdir}/${modulename}-${pkgver}"
   python setup.py install --root="${pkgdir}" --optimize=1
