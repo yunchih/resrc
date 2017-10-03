@@ -1,6 +1,6 @@
 # Copyright 2017 Yunchih Chen <yunchih@csie.ntu.edu.tw>
 
-import dbus, logging
+import dbus, logging, re, sys
 from gi.repository import GLib
 from dbus import SystemBus, SessionBus, Interface
 from dbus.mainloop.glib import DBusGMainLoop
@@ -15,7 +15,10 @@ class Systemd:
 
     def run(self, method, *args, **kwargs):
         f = getattr(self.iface, method)
-        return f(*args)
+        try:
+            return f(*args, **kwargs)
+        except dbus.DBusException as e:
+            raise Exception(e)
 
     @staticmethod
     def dict_to_dbus_properties(ct):
@@ -63,7 +66,12 @@ class UsersResourceManager:
 
     def run(self):
         self.loop = GLib.MainLoop()
-        self.loop.run()
+
+        try:
+            self.loop.run()
+        except KeyboardInterrupt:
+            logging.info('Quitting ...')
+            sys.exit(1)
 
     def monitor_new_user(self):
         try:
