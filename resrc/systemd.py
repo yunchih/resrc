@@ -75,13 +75,14 @@ class UsersResourceManager:
 
     def monitor_new_user(self):
         try:
-            self.logind_iface.connect_to_signal("UserNew", self._new_user_handler, sender_keyword='sender')
-        except dbus.DBusException as e:
-            logging.error("Failed registering user signal handler: " + e)
+            self.sd_logind.run("connect_to_signal", "UserNew", self._new_user_handler, sender_keyword='sender')
+        except Exception as e:
+            logging.error("Failed registering user signal handler: " + str(e))
+
+        logging.info("Start monitoring incoming users ...")
 
     def _new_user_handler(self, slice_id, obj_path="", sender=""):
         uid, gid = 0, 0
-
         try:
             uid = int(slice_id)
             gid = Users.get_user_gid(uid)
