@@ -2,9 +2,9 @@
 modulename=resrc
 pkgname="python-${modulename}"
 pkgver=1.3
-pkgdesc="Systemd-logind resource hook"
+pkgdesc="A tool that limits total CGroup resources available to a user within all her sessions"
 arch=('any')
-url="https://github.com/yunchih/systemd-logind-hook"
+url="https://github.com/yunchih/resrc"
 license=('MIT')
 depends=('pacman' 'python>=3.3' 'python-dbus' 'python-yaml')
 source=("https://github.com/yunchih/resrc/releases/download/v${pkgver}/${modulename}-${pkgver}.tar.gz")
