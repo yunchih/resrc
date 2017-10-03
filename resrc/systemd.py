@@ -33,10 +33,9 @@ class Systemd:
 
 class UsersResourceManager:
 
-    def __init__(self, ruleset=[], dry_run=False, all_user=False, apply_existing=False):
+    def __init__(self, ruleset=[], dry_run=False, apply_existing=False):
         self.ruleset = ruleset
         self.dry_run = dry_run
-        self.all_user = all_user
 
         if len(ruleset) == 0:
             quit("No rules installed!")
@@ -100,11 +99,11 @@ class UsersResourceManager:
 
         for entry in self.ruleset:
             # Only apply the first matched rule
-            if self.all_user or entry.match(uid, gid):
+            if entry.match(uid, gid):
+                logging.info("UID {0} matches rule \"{1}\"".format(uid, entry.get_rules().name))
                 r = entry.get_rules().rules
                 if (not self.dry_run) and r:
                     self.sd_set_unit_properties(uid, r)
-                logging.info("UID {0} matches rule \"{1}\"".format(uid, entry.get_rules().name))
                 break
 
     def sd_set_unit_properties(self, uid, properties):
@@ -113,7 +112,7 @@ class UsersResourceManager:
 
         try:
             self.sd_manager.run("SetUnitProperties", sd_unit, sd_runtime, properties)
-            logging.info("Resource limitation imposed on user: %d" % uid)
+            logging.info("Resource limitation imposed on user: UID %d" % uid)
         except Exception as e:
             logging.error("Failed imposing resource limit on %d: %s" % (uid, e))
 

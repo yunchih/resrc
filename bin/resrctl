@@ -59,8 +59,6 @@ if __name__ == '__main__':
             help="(Optional) A list of users to be constrained")
     parser.add_argument("--groups", "-g", nargs="+", action="store", default=[],
             help="(Optional) A list of groups to be constrained")
-    parser.add_argument("--apply-all", "-a", dest="apply_all", action="store_true",
-            help="(Optional) Apply the constraints to all users")
     parser.add_argument("--rules", "-r", action="store", default="",
             help="(Required) A comma-seperated list of rules to be applied")
     parser.add_argument("--apply-existing", "-e", dest="apply_existing", action="store_true",
@@ -79,7 +77,7 @@ if __name__ == '__main__':
     rules = _parse_config(args.config)
     rules = rules + parse_cmd(args.users, args.groups, args.rules)
 
-    manager = UsersResourceManager(rules, args.dry, args.apply_all, args.apply_existing)
+    manager = UsersResourceManager(rules, args.dry, args.apply_existing)
     manager.monitor_new_user()
     manager.run()
 
