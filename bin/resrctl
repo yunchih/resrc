@@ -65,14 +65,14 @@ if __name__ == '__main__':
             help="(Required) A comma-seperated list of rules to be applied")
     parser.add_argument("--apply-existing", "-e", dest="apply_existing", action="store_true",
             help="(Optional) Apply the constraints to all *existing* users")
-    parser.add_argument("--debug", action="store_true",
-            help="Show debug output")
+    parser.add_argument("--verbose", action="store_true",
+            help="Show verbose output")
     parser.add_argument("--dry", action="store_true",
             help="Run without actually applying rules")
     parser.add_argument("--version", "-v", action="version", version="%(prog)s " + str(VERSION))
 
     args = parser.parse_args()
-    level = logging.DEBUG if args.debug else logging.ERROR
+    level = logging.DEBUG if args.verbose else logging.ERROR
     logging.basicConfig(stream=sys.stderr, level=level, format='%(levelname)s: %(message)s')
     logging.info("Systemd resource manager started")
 
