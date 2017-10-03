@@ -7,6 +7,27 @@ from dbus.mainloop.glib import DBusGMainLoop
 from resrc.utils import quit
 from resrc.users import Users
 
+class Systemd:
+    def __init__(self, dest, object_path, interface):
+        bus = SystemBus()
+        node = bus.get_object(dest, object_path)
+        self.iface = Interface(node, dbus_interface=interface)
+
+    def run(self, method, *args):
+        f = getattr(self.iface, method)
+        return f(*args)
+
+    @staticmethod
+    def dict_to_dbus_properties(ct):
+        props = []
+        for (key, value) in ct:
+            if isinstance(value, int):
+                props.append(dbus.Struct((key, dbus.UInt64(value))))
+            else:
+                props.append(dbus.Struct((key, dbus.String(value))))
+
+        return dbus.Array(props)
+
 class UsersResourceManager:
 
     def __init__(self, ruleset=[], dry_run=False, all_user=False):
@@ -19,12 +40,9 @@ class UsersResourceManager:
 
         DBusGMainLoop(set_as_default=True)
 
-        self._bus = SystemBus()
-        self.logind = self._bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
-        self.logind_iface = Interface(self.logind, dbus_interface='org.freedesktop.login1.Manager')
-
-        self.manager = self._bus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
-        self.manager_iface = Interface(self.manager, dbus_interface='org.freedesktop.systemd1.Manager')
+        self.sd_logind  = Systemd('org.freedesktop.login1', '/org/freedesktop/login1',
+                'org.freedesktop.login1.Manager')
+        self.sd_manager = Systemd('org.freedesktop.systemd1', '/org/freedesktop/systemd1', 'org.freedesktop.systemd1.Manager')
 
     def run(self):
         self.loop = GLib.MainLoop()
@@ -65,18 +83,8 @@ class UsersResourceManager:
         sd_runtime = dbus.Boolean(True)
 
         try:
-            self.manager_iface.SetUnitProperties(sd_unit, sd_runtime, properties)
+            self.sd_manager.run("SetUnitProperties", sd_unit, sd_runtime, properties)
             logging.info("Resource limitation imposed on user: %d" % uid)
         except dbus.DBusException as e:
             logging.error("Failed imposing resource limit on %d: %s" % (uid, e))
 
-    @staticmethod
-    def dict_to_dbus_properties(ct):
-        props = []
-        for (key, value) in ct:
-            if isinstance(value, int):
-                props.append(dbus.Struct((key, dbus.UInt64(value))))
-            else:
-                props.append(dbus.Struct((key, dbus.String(value))))
-
-        return dbus.Array(props)

@@ -1,5 +1,5 @@
 import os
-from resrc.systemd import UsersResourceManager
+from resrc.systemd import Systemd
 
 class Rule:
 
@@ -25,7 +25,7 @@ class Rule:
         self.name = name
         if self.check_rules(rules):
             raw_rules = [self.translate_rule(n,v) for (n,v) in rules.items()]
-            self.rules = UsersResourceManager.dict_to_dbus_properties(raw_rules)
+            self.rules = Systemd.dict_to_dbus_properties(raw_rules)
         else:
             pass # won't be here
 

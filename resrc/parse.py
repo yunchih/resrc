@@ -1,6 +1,5 @@
 import logging, yaml
 from resrc.users import Users
-from resrc.systemd import UsersResourceManager
 from resrc.rules import Rule, RuleEntry
 from resrc.users import Users
 
