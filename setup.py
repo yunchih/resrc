@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='resrc',
-      version='1.1',
+      version='1.3',
       description='Limit total system resources available to a user within all her sessions.',
       url='http://github.com/yunchih/logind-hook',
       author='Yunchih Chen',
