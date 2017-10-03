@@ -13,7 +13,7 @@ class Systemd:
         node = bus.get_object(dest, object_path)
         self.iface = Interface(node, dbus_interface=interface)
 
-    def run(self, method, *args):
+    def run(self, method, *args, **kwargs):
         f = getattr(self.iface, method)
         return f(*args)
 
@@ -30,7 +30,7 @@ class Systemd:
 
 class UsersResourceManager:
 
-    def __init__(self, ruleset=[], dry_run=False, all_user=False):
+    def __init__(self, ruleset=[], dry_run=False, all_user=False, apply_existing=False):
         self.ruleset = ruleset
         self.dry_run = dry_run
         self.all_user = all_user
@@ -43,6 +43,23 @@ class UsersResourceManager:
         self.sd_logind  = Systemd('org.freedesktop.login1', '/org/freedesktop/login1',
                 'org.freedesktop.login1.Manager')
         self.sd_manager = Systemd('org.freedesktop.systemd1', '/org/freedesktop/systemd1', 'org.freedesktop.systemd1.Manager')
+
+        if apply_existing:
+            unit_list = self.sd_get_unit_list()
+            uids = self.sd_get_uids_from_units(unit_list)
+
+            for _uid in uids:
+                uid, gid = 0, 0
+
+                try:
+                    uid = int(_uid)
+                    gid = Users.get_user_gid(uid)
+                    logging.info("Existing user detected: %d" % uid)
+                except KeyError:
+                    # just in case
+                    logging.error("Existing user detected but uid not found: %d" % uid)
+
+                self.apply_rule(uid, gid)
 
     def run(self):
         self.loop = GLib.MainLoop()
@@ -66,6 +83,9 @@ class UsersResourceManager:
             logging.error("New user detected but uid not found: %d" % uid)
             return
 
+        self.apply_rule(uid, gid)
+
+    def apply_rule(self, uid, gid):
         if not uid or not gid: # exclude root and malformed uid, gid
             return
 
@@ -85,6 +105,18 @@ class UsersResourceManager:
         try:
             self.sd_manager.run("SetUnitProperties", sd_unit, sd_runtime, properties)
             logging.info("Resource limitation imposed on user: %d" % uid)
-        except dbus.DBusException as e:
+        except Exception as e:
             logging.error("Failed imposing resource limit on %d: %s" % (uid, e))
 
+    def sd_get_unit_list(self):
+        try:
+            return self.sd_manager.run("ListUnits")
+        except Exception as e:
+            logging.error("Failed getting all units: " + e)
+
+    def sd_get_uids_from_units(self, units):
+        r = re.compile("^user-[0-9]*\.slice")
+        r2 = re.compile("[0-9]+")
+        unit_names = [u[0] for u in units]
+        user_slices = [u for u in unit_names if re.match(r, u)]
+        return [re.search(r2, u).group(0) for u in user_slices]
