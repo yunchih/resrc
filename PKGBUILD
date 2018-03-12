@@ -2,6 +2,7 @@
 modulename=resrc
 pkgname="python-${modulename}"
 pkgver=1.3
+pkgrel=4
 pkgdesc="A tool that limits total CGroup resources available to a user within all her sessions"
 arch=('any')
 url="https://github.com/yunchih/resrc"
